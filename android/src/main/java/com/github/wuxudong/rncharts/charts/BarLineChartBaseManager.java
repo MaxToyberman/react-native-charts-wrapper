@@ -296,8 +296,11 @@ public abstract class BarLineChartBaseManager<T extends BarLineChartBase, U exte
     }
 
     @Override
-    public void receiveCommand(T root, int commandId, @Nullable ReadableArray args) {
-        switch (commandId) {
+    public void receiveCommand(T root, String commandId, @Nullable ReadableArray args) {
+
+        int commandIdInt = Integer.parseInt(commandId);
+
+        switch (commandIdInt) {
             case MOVE_VIEW_TO:
                 root.moveViewTo((float) args.getDouble(0), (float) args.getDouble(1), args.getString(2).equalsIgnoreCase("right") ? YAxis.AxisDependency.RIGHT : YAxis.AxisDependency.LEFT);
                 return;

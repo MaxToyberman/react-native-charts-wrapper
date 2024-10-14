@@ -38,7 +38,7 @@ public class MPAndroidChartPackage implements ReactPackage {
                 new HorizontalBarChartManager(),
                 new BubbleChartManager(),
                 new CandleStickChartManager(),
-                new LineChartManager(),
+                new LineChartManager(reactContext),
                 new PieChartManager(),
                 new RadarChartManager(),
                 new ScatterChartManager(),

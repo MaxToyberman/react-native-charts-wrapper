@@ -36,5 +36,17 @@
   },
   "peerDependencies": {
     "react": ">=16.0.0"
+  },
+  "codegenConfig": {
+    "name": "reactnativechartswrapper",
+    "type": "components",
+    "jsSrcsDir": "./lib",
+    "outputDir": {
+        "ios": "ios/generated",
+        "android": "android/generated"
+    },
+    "android": {
+      "javaPackageName": "com.github.wuxudong.rncharts"
+    }
   }
 }

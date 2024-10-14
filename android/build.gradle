@@ -1,4 +1,3 @@
-apply plugin: 'com.android.library'
 
 buildscript {
     // The Android Gradle plugin is only required when opening the android folder stand-alone.
@@ -7,11 +6,12 @@ buildscript {
     if (project == rootProject) {
         repositories {
             google()
-            jcenter()
+            gradlePluginPortal()
+            mavenCentral()
         }
         
         dependencies {
-            classpath("com.android.tools.build:gradle:3.5.3")
+            classpath("com.android.tools.build:gradle:7.3.1")
         }
     }
 }
@@ -19,17 +19,40 @@ def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
+def isNewArchitectureEnabled() {
+    // To opt-in for the New Architecture, you can either:
+    // - Set `newArchEnabled` to true inside the `gradle.properties` file
+    // - Invoke gradle with `-newArchEnabled=true`
+    // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
+apply plugin: 'com.android.library'
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: 'com.facebook.react'
+}
+
 android {
+    // Conditional for compatibility with AGP <4.2.
+    if (project.android.hasProperty("namespace")) {
+        namespace = "com.github.wuxudong.rncharts"
+    } else {
+        // print
+        println "DEPRECATION WARNING: The `namespace` property is not available in your version of AGP. Please upgrade to AGP 4.2+."
+    }
     compileSdkVersion safeExtGet("compileSdkVersion", 28)
     buildToolsVersion safeExtGet("buildToolsVersion", "28.0.3")
 
     defaultConfig {
         minSdkVersion safeExtGet("minSdkVersion", 16)
         targetSdkVersion safeExtGet("targetSdkVersion", 28)
-        versionCode 1
-        versionName "1.0"
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+
     }
+    
 }
+
 repositories {
     mavenCentral()
     flatDir { dirs 'libs' }
@@ -40,4 +63,13 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+}
+if (isNewArchitectureEnabled()) {
+  // rncli & react-native-gradle-plugin use codegenConfig in package.json since react-native@0.70
+  // Use react{} for compatibility with react-native@0.68/0.69
+  react {
+    jsRootDir = file("../libs")
+    libraryName = 'reactnativechartswrapper'
+    codegenJavaPackageName = "com.github.wuxudong.rncharts"
+  }
 }
